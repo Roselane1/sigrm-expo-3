@@ -32,6 +32,7 @@
     "@react-native-picker/picker": "2.7.5",
     "lucide-react-native": "^0.400.0",
     "react-native-svg": "15.2.0",
+    "@expo/metro-runtime": "~3.2.3",
     "@react-native-async-storage/async-storage": "1.23.1",
     "xlsx": "^0.18.5"
   },

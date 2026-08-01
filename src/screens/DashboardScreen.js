@@ -25,7 +25,7 @@ export default function DashboardScreen({ goTo }) {
     [requisitions]
   );
 
-  const cardWidth = isNarrow ? "48%" : 150;
+  const cardWidth = isNarrow ? "47%" : 150;
 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
@@ -36,14 +36,14 @@ export default function DashboardScreen({ goTo }) {
           const meta = REQ_STATUS_META[key];
           const Icon = meta.icon;
           return (
-            <Card key={key} style={{ width: cardWidth, marginBottom: 12 }}>
+            <Card key={key} style={{ width: cardWidth, marginBottom: 10, padding: isNarrow ? 12 : 18 }}>
               <View style={styles.statHeader}>
-                <Text style={styles.statLabel}>{meta.label}</Text>
-                <View style={[styles.statIconWrap, { backgroundColor: meta.bg }]}>
-                  <Icon size={14} color={meta.color} />
+                <Text style={[styles.statLabel, isNarrow && { fontSize: 9.5 }]}>{meta.label}</Text>
+                <View style={[styles.statIconWrap, isNarrow && { width: 20, height: 20, borderRadius: 5 }, { backgroundColor: meta.bg }]}>
+                  <Icon size={isNarrow ? 11 : 14} color={meta.color} />
                 </View>
               </View>
-              <Text style={styles.statValue}>{counts[key]}</Text>
+              <Text style={[styles.statValue, isNarrow && { fontSize: 20 }]}>{counts[key]}</Text>
             </Card>
           );
         })}
@@ -91,7 +91,7 @@ export default function DashboardScreen({ goTo }) {
 }
 
 const styles = StyleSheet.create({
-  statsRow: { flexDirection: "row", flexWrap: "wrap", gap: 12, marginBottom: 4 },
+  statsRow: { flexDirection: "row", flexWrap: "wrap", gap: 10, marginBottom: 4 },
   statHeader: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 10 },
   statLabel: { fontFamily: FONTS.mono, fontSize: 10.5, letterSpacing: 0.5, textTransform: "uppercase", color: COLORS.muted, flexShrink: 1 },
   statIconWrap: { width: 26, height: 26, borderRadius: 7, alignItems: "center", justifyContent: "center" },

@@ -30,12 +30,6 @@ export default function LoginScreen() {
     }
   }
 
-  function fillAdmin() {
-    setLoginValue("Administrador");
-    setSenha("Administrador");
-    setError("");
-  }
-
   return (
     <KeyboardAvoidingView style={styles.screen} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
@@ -43,10 +37,6 @@ export default function LoginScreen() {
           <Text style={styles.eyebrow}>SIGRM</Text>
           <Text style={styles.title}>Sistema Integrado de Gestão de Requisições de Materiais</Text>
           <Text style={styles.subtitle}>Entre com seu login e senha cadastrados pelo Administrador.</Text>
-
-          <Pressable onPress={fillAdmin}>
-            <Text style={styles.fillLink}>Preencher com o login do Administrador</Text>
-          </Pressable>
 
           <Text style={styles.label}>Login</Text>
           <TextField value={loginValue} onChangeText={setLoginValue} placeholder="Ex: wesley" style={{ marginBottom: 14 }} />

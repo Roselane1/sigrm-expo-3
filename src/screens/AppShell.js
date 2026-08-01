@@ -119,7 +119,7 @@ export default function AppShell() {
           <View style={styles.sidebarFooter}>
             <View style={{ flexDirection: "row", alignItems: "center", gap: 9, marginBottom: 10 }}>
               <View style={styles.avatar}>
-                <Text style={styles.avatarText}>{user.name.slice(0, 1).toUpperCase()}</Text>
+                <Text style={styles.avatarText}>{(user.name || "?").slice(0, 1).toUpperCase()}</Text>
               </View>
               <View>
                 <Text style={styles.userName}>{user.name}</Text>

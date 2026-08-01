@@ -11,20 +11,20 @@ import {
   Zap,
 } from "lucide-react-native";
 import { COLORS } from "../theme/colors";
-
+ 
 export const ROLES = {
   tecnico: { label: "Técnico de Materiais", desc: "Cria, edita e cancela requisições" },
   planejamento: { label: "Planejamento", desc: "Acompanha o andamento das requisições" },
   logistica: { label: "Logística", desc: "Localiza, separa e atualiza os itens" },
   administrador: { label: "Administrador", desc: "Configura o sistema" },
 };
-
+ 
 export const PRIORIDADE_META = {
   normal: { label: "Normal", color: COLORS.teal, bg: COLORS.tealSoft, icon: Circle },
   medio: { label: "Média", color: COLORS.amber, bg: COLORS.amberSoft, icon: AlertTriangle },
   urgente: { label: "Urgente", color: COLORS.rust, bg: COLORS.rustSoft, icon: Zap },
 };
-
+ 
 export const REQ_STATUS_META = {
   aberta: { label: "Aberta", color: COLORS.muted, bg: COLORS.neutralSoft, icon: FileText },
   em_atendimento: { label: "Em Atendimento", color: COLORS.blue, bg: COLORS.blueSoft, icon: Truck },
@@ -33,7 +33,7 @@ export const REQ_STATUS_META = {
   finalizada_pendencias: { label: "Finalizada c/ Pendências", color: COLORS.rust, bg: COLORS.rustSoft, icon: AlertTriangle },
   cancelada: { label: "Cancelada", color: COLORS.rust, bg: COLORS.rustSoft, icon: XCircle },
 };
-
+ 
 export const ITEM_STATUS_META = {
   nao_iniciado: { label: "Não iniciado", color: COLORS.muted, bg: COLORS.neutralSoft, icon: Circle },
   em_localizacao: { label: "Em localização", color: COLORS.blue, bg: COLORS.blueSoft, icon: Search },
@@ -43,7 +43,7 @@ export const ITEM_STATUS_META = {
   retirado: { label: "Retirado", color: COLORS.ink, bg: COLORS.navySoft, icon: CheckCheck },
   cancelado: { label: "Cancelado", color: COLORS.rust, bg: COLORS.rustSoft, icon: XCircle },
 };
-
+ 
 export const HEADER_FIELDS = [
   { key: "arquivo", label: "Arquivo" },
   { key: "osContrato", label: "OS Contrato" },
@@ -54,7 +54,7 @@ export const HEADER_FIELDS = [
   { key: "responsavel", label: "Responsável" },
   { key: "emissao", label: "Emissão" },
 ];
-
+ 
 export const HEADER_LABEL_MAP = {
   ARQUIVO: "arquivo",
   "OS CONTRATO": "osContrato",
@@ -62,26 +62,33 @@ export const HEADER_LABEL_MAP = {
   SOLICITANTE: "solicitante",
   "NOME DA OBRA": "nomeObra",
   "ELEMENTO PEP": "elementoPep",
+  PEP: "elementoPep",
   RESPONSAVEL: "responsavel",
-  RESPONSÁVEL: "responsavel",
   EMISSAO: "emissao",
-  EMISSÃO: "emissao",
+  DATA: "emissao",
 };
-
+ 
+// "aliases" cobre variações reais de nome de coluna encontradas em planilhas
+// diferentes (ex: "Nº" em vez de "Índice", "Qtd" em vez de "QDT"). A busca de
+// coluna aceita o "label" OU qualquer um dos "aliases".
 export const PARSE_COLUMNS = [
-  { key: "indice", label: "Índice" },
-  { key: "localAplicacao", label: "Local de Aplicação" },
-  { key: "desenho", label: "Desenho" },
-  { key: "niMaterial", label: "NI Material" },
-  { key: "descricaoMaterial", label: "Descrição do Material" },
-  { key: "tag", label: "Tag" },
-  { key: "qdt", label: "QDT" },
-  { key: "ubm", label: "UBM" },
-  { key: "os", label: "OS" },
-  { key: "refFornecedor", label: "Ref. Fornecedor" },
-  { key: "reserva", label: "Reserva" },
-  { key: "item", label: "Item" },
-  { key: "obs", label: "OBS" },
+  { key: "indice", label: "Índice", aliases: ["N", "NO", "Nº"] },
+  { key: "localAplicacao", label: "Local de Aplicação", aliases: [] },
+  { key: "desenho", label: "Desenho", aliases: [] },
+  { key: "niMaterial", label: "NI Material", aliases: [] },
+  { key: "descricaoMaterial", label: "Descrição do Material", aliases: [] },
+  { key: "tag", label: "Tag", aliases: [] },
+  { key: "qdt", label: "QDT", aliases: ["QTD"] },
+  { key: "ubm", label: "UBM", aliases: [] },
+  { key: "os", label: "OS", aliases: ["N DE OS", "NUMERO DE OS"] },
+  { key: "refFornecedor", label: "Ref. Fornecedor", aliases: ["REFERENCIA", "REF FORNECEDOR"] },
+  { key: "reserva", label: "Reserva", aliases: [] },
+  { key: "item", label: "Item", aliases: [] },
+  { key: "obs", label: "OBS", aliases: ["N DE NT", "NUMERO DE NT"] },
 ];
-
-export const TABLE_HEADER_MATCH = ["INDICE", "ÍNDICE"];
+ 
+// Quantas colunas conhecidas precisam bater numa linha pra considerá-la o
+// cabeçalho da tabela de itens (em vez de depender só da coluna "Índice",
+// que nem toda planilha usa esse nome exato).
+export const HEADER_ROW_MIN_MATCHES = 4;
+ 

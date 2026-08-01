@@ -79,8 +79,8 @@ export function AppStateProvider({ children }) {
   );
 
   const logout = useCallback(async () => {
-    setUser(null);
-    setToken(null);
+    setUser(result.user);
+    setToken(result.token);
     setUsers([]);
     setRequisitions([]);
     setNotifications([]);

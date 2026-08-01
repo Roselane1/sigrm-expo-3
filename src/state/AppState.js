@@ -138,6 +138,20 @@ export function AppStateProvider({ children }) {
     [token, showToast]
   );
  
+  const deleteRequisicao = useCallback(
+    async (id) => {
+      try {
+        await api.deleteRequisicaoApi(token, id);
+        setRequisitions((prev) => prev.filter((r) => r.id !== id));
+        showToast("Requisição excluída.");
+      } catch (err) {
+        showToast(err.message || "Não foi possível excluir a requisição.");
+        throw err;
+      }
+    },
+    [token, showToast]
+  );
+ 
   const markAllNotificationsRead = useCallback(async () => {
     try {
       const notifs = await api.markAllNotificationsReadApi(token);
@@ -184,6 +198,7 @@ export function AppStateProvider({ children }) {
     requisitions,
     updateRequisicao,
     createRequisicao,
+    deleteRequisicao,
     refreshRequisicoes,
     refreshAll,
     refreshing,
@@ -202,3 +217,4 @@ export function useAppState() {
   if (!ctx) throw new Error("useAppState deve ser usado dentro de AppStateProvider");
   return ctx;
 }
+ 

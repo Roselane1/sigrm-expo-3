@@ -14,16 +14,16 @@ import { parseNum, today } from "../utils/helpers";
 import { withDerivedStatus, updateItemQdtLocalizada, addRetirada, allItemsRetirado } from "../utils/requisicaoLogic";
 import { exportRequisicaoPdf } from "../utils/exportPdf";
 import { useAppState } from "../state/AppState";
-
+ 
 const BULK_OPTIONS = [
   { value: "em_localizacao", label: "Em localização" },
   { value: "aguardando_retirada", label: "Aguardando retirada" },
 ];
-
+ 
 export default function RequisicaoDetalheScreen({ reqId, onBack }) {
   const { user, requisitions, updateRequisicao } = useAppState();
   const req = requisitions.find((r) => r.id === reqId);
-
+ 
   const [selected, setSelected] = useState(new Set());
   const [bulkStatus, setBulkStatus] = useState("em_localizacao");
   const [confirmCancelReq, setConfirmCancelReq] = useState(false);
@@ -32,7 +32,7 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
   const [retiradaQuem, setRetiradaQuem] = useState("");
   const [historyOpenId, setHistoryOpenId] = useState(null);
   const [exporting, setExporting] = useState(false);
-
+ 
   if (!req) {
     return (
       <View style={{ padding: 20 }}>
@@ -40,13 +40,13 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
       </View>
     );
   }
-
+ 
   const locked = req.status === "finalizada" || req.status === "finalizada_pendencias" || req.status === "cancelada";
   const isLogistica = user.role === "logistica";
   const isTecnico = user.role === "tecnico";
   const canFinalizar = (isLogistica || user.role === "administrador" || user.role === "planejamento") && req.status === "aguardando_retirada";
   const podeFinalizarAgora = canFinalizar && allItemsRetirado(req.items);
-
+ 
   function toggleSelect(id) {
     setSelected((prev) => {
       const next = new Set(prev);
@@ -54,32 +54,32 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
       return next;
     });
   }
-
+ 
   function applyItems(items) {
     updateRequisicao(withDerivedStatus(req, items, locked));
   }
-
+ 
   function handleQdtLocalizadaChange(itemId, value) {
     const items = req.items.map((it) => (it._id === itemId ? updateItemQdtLocalizada(it, value) : it));
     applyItems(items);
   }
-
+ 
   function handleFieldChange(itemId, field, value) {
     const items = req.items.map((it) => (it._id === itemId ? { ...it, [field]: value } : it));
     applyItems(items);
   }
-
+ 
   function applyBulkStatus() {
     const items = req.items.map((it) => (selected.has(it._id) ? { ...it, statusItem: bulkStatus } : it));
     applyItems(items);
     setSelected(new Set());
   }
-
+ 
   function cancelItem(itemId) {
     const items = req.items.map((it) => (it._id === itemId ? { ...it, statusItem: "cancelado" } : it));
     applyItems(items);
   }
-
+ 
   function confirmRetirada(itemId) {
     const updatedItem = addRetirada(req.items.find((it) => it._id === itemId), retiradaQtd, retiradaQuem);
     if (!updatedItem) return;
@@ -89,17 +89,17 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
     setRetiradaQtd("");
     setRetiradaQuem("");
   }
-
+ 
   function finalizarRequisicao() {
     const hasCancelado = req.items.some((i) => i.statusItem === "cancelado");
     updateRequisicao({ ...req, status: hasCancelado ? "finalizada_pendencias" : "finalizada", dataFinalizacao: today() });
   }
-
+ 
   function cancelarRequisicao() {
     updateRequisicao({ ...req, status: "cancelada" });
     setConfirmCancelReq(false);
   }
-
+ 
   async function handleExport() {
     setExporting(true);
     try {
@@ -110,14 +110,14 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
       setExporting(false);
     }
   }
-
+ 
   return (
     <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
       <Pressable onPress={onBack} style={styles.backBtn}>
         <ChevronLeft size={15} color={COLORS.muted} />
         <Text style={styles.backText}>Voltar</Text>
       </Pressable>
-
+ 
       <View style={styles.headerRow}>
         <Text style={styles.code}>{req.code}</Text>
         <Stamp meta={REQ_STATUS_META[req.status]} />
@@ -129,7 +129,7 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
           {exporting ? "Gerando..." : "Exportar PDF"}
         </Button>
       </View>
-
+ 
       <Card style={{ marginBottom: 18 }}>
         <View style={styles.headerGrid}>
           {HEADER_FIELDS.map((f) => (
@@ -140,7 +140,7 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
           ))}
         </View>
       </Card>
-
+ 
       <View style={styles.actionsRow}>
         {podeFinalizarAgora && (
           <Button variant="teal" icon={CheckCircle2} onPress={finalizarRequisicao}>Finalizar (confirmar retirada)</Button>
@@ -162,14 +162,14 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
           </View>
         )}
       </View>
-
+ 
       {!locked && (
         <View style={styles.infoInline}>
           <Info size={13} color={COLORS.muted} />
           <Text style={styles.infoText}>O status da requisição é atualizado automaticamente conforme o status dos itens.</Text>
         </View>
       )}
-
+ 
       {isLogistica && !locked && selected.size > 0 && (
         <Card style={{ backgroundColor: COLORS.tealSoft, borderColor: COLORS.teal + "55", marginBottom: 12 }}>
           <View style={{ flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
@@ -180,14 +180,14 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
           </View>
         </Card>
       )}
-
+ 
       <View style={{ gap: 10 }}>
         {req.items.map((it) => {
           const meta = ITEM_STATUS_META[it.statusItem];
           const canEditLogistica = isLogistica && !locked && it.statusItem !== "cancelado";
           const canEditTecnico = isTecnico && req.status === "aberta" && it.statusItem !== "cancelado";
           const cancelado = it.statusItem === "cancelado";
-
+ 
           return (
             <Card key={it._id} style={{ opacity: cancelado ? 0.6 : 1 }}>
               <View style={styles.itemTopRow}>
@@ -203,6 +203,7 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
                     <Text style={styles.itemName}>{it.descricaoMaterial}</Text>
                   )}
                   <Text style={styles.itemCode}>NI Material: {it.niMaterial || "—"}</Text>
+                  <Text style={[styles.itemCode, { marginTop: 2 }]}>Nº de NT: {it.obs || "—"}</Text>
                 </View>
                 {isTecnico && !locked && !cancelado && (
                   <Pressable onPress={() => cancelItem(it._id)}>
@@ -210,7 +211,7 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
                   </Pressable>
                 )}
               </View>
-
+ 
               <View style={styles.itemFieldsRow}>
                 <View style={styles.itemField}>
                   <Text style={styles.itemFieldLabel}>Qtd</Text>
@@ -241,7 +242,7 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
                   <Text style={styles.itemFieldValue}>{it.item || "—"}</Text>
                 </View>
               </View>
-
+ 
               <View style={styles.itemFieldsRow}>
                 <View style={styles.itemField}>
                   <Text style={styles.itemFieldLabel}>Qtd. localizada</Text>
@@ -252,12 +253,12 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
                   )}
                 </View>
               </View>
-
+ 
               <View style={{ marginTop: 8 }}>
                 <Text style={styles.itemFieldLabel}>Status</Text>
                 <Stamp meta={meta} size="sm" />
               </View>
-
+ 
               <View style={{ marginTop: 10 }}>
                 <Text style={styles.itemFieldLabel}>Retirada</Text>
                 <RetiradaCell
@@ -275,10 +276,18 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
                   onToggleHistory={() => setHistoryOpenId(historyOpenId === it._id ? null : it._id)}
                 />
               </View>
-
+ 
               <View style={{ marginTop: 10 }}>
-                <Text style={styles.itemFieldLabel}>Nº de NT</Text>
-                <Text style={{ color: COLORS.muted, fontSize: 12.5 }}>{it.obs || "—"}</Text>
+                <Text style={styles.itemFieldLabel}>Observação</Text>
+                {canEditLogistica ? (
+                  <TextField
+                    value={it.obsLogistica || ""}
+                    onChangeText={(v) => handleFieldChange(it._id, "obsLogistica", v)}
+                    placeholder="Observação"
+                  />
+                ) : (
+                  <Text style={{ color: COLORS.muted, fontSize: 12.5 }}>{it.obsLogistica || "—"}</Text>
+                )}
               </View>
             </Card>
           );
@@ -287,7 +296,7 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
     </ScrollView>
   );
 }
-
+ 
 const styles = StyleSheet.create({
   backBtn: { flexDirection: "row", alignItems: "center", gap: 5, marginBottom: 14 },
   backText: { color: COLORS.muted, fontFamily: FONTS.bodySemiBold, fontSize: 13 },
@@ -312,3 +321,4 @@ const styles = StyleSheet.create({
   itemFieldLabel: { fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.4, color: COLORS.muted, fontFamily: FONTS.mono, marginBottom: 3 },
   itemFieldValue: { fontSize: 13, color: COLORS.ink, fontFamily: FONTS.body },
 });
+ 

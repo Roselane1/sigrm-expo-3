@@ -1,0 +1,35 @@
+{
+  "expo": {
+    "name": "SIGRM",
+    "slug": "sigrm",
+    "version": "1.0.0",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#12283F"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "android": {
+      "package": "br.com.sigrm.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#12283F"
+      },
+      "permissions": []
+    },
+    "web": {
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "name": "SIGRM",
+      "shortName": "SIGRM",
+      "display": "standalone",
+      "themeColor": "#12283F",
+      "backgroundColor": "#12283F",
+      "lang": "pt-BR"
+    },
+    "plugins": ["expo-font"]
+  }
+}

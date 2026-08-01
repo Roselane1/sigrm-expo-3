@@ -1,0 +1,23 @@
+{
+  "name": "sigrm-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.0"
+  },
+  "build": {
+    "appId": "br.com.sigrm.desktop",
+    "productName": "SIGRM",
+    "files": ["main.js", "web/**/*", "icon.ico"],
+    "win": {
+      "target": ["nsis"],
+      "icon": "icon.ico"
+    }
+  }
+}

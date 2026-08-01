@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#12283F" />
+    <meta name="description" content="SIGRM - Sistema Integrado de Gestão de Requisições de Materiais" />
+
+    <title>SIGRM</title>
+
+    <!-- PWA: manifesto (Android/Chrome/Desktop) -->
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="icon" href="/icons/icon-192.png" />
+
+    <!-- iOS/Safari: não segue o manifest.json, precisa dessas tags específicas -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="SIGRM" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+
+    <style>
+      html, body, #root {
+        height: 100%;
+      }
+      body {
+        margin: 0;
+        overflow: hidden;
+        background-color: #12283F;
+      }
+      #root {
+        display: flex;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // Registra o service worker (funcionamento offline / app instalável).
+      // Só roda em produção/servido por HTTPS ou localhost — em dev normal
+      // (expo start --web) o navegador ainda assim aceita em localhost.
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", function () {
+          navigator.serviceWorker.register("/service-worker.js").catch(function () {
+            // falha silenciosa — app continua funcionando normalmente sem offline
+          });
+        });
+      }
+    </script>
+  </body>
+</html>

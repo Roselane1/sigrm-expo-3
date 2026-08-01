@@ -51,7 +51,17 @@ export function AppStateProvider({ children }) {
           AsyncStorage.getItem(TOKEN_KEY),
           AsyncStorage.getItem(USER_KEY),
         ]);
-       if (savedToken && savedUser) { const parsedUser = JSON.parse(savedUser); if (parsedUser && parsedUser.name && parsedUser.role) { setToken(savedToken); setUser(parsedUser); await loadAllData(savedToken); } else { await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY]); } } 
+        if (savedToken && savedUser) {
+          const parsedUser = JSON.parse(savedUser);
+          if (parsedUser && parsedUser.name && parsedUser.role) {
+            setToken(savedToken);
+            setUser(parsedUser);
+            await loadAllData(savedToken);
+          } else {
+            // Sessão salva num formato antigo/inválido — descarta e volta pro login.
+            await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY]);
+          }
+        }
       } catch {
         // sessão não pôde ser restaurada — segue para a tela de login
       } finally {
@@ -64,19 +74,20 @@ export function AppStateProvider({ children }) {
   const login = useCallback(
     async (loginValue, senha) => {
       const result = await api.login(loginValue, senha); // lança erro se falhar — a tela trata
+      const mappedUser = { id: result.user.id, name: result.user.nome, role: result.user.perfil };
       setToken(result.token);
-      setUser(result.user);
+      setUser(mappedUser);
       await AsyncStorage.setItem(TOKEN_KEY, result.token);
-      await AsyncStorage.setItem(USER_KEY, JSON.stringify(result.user));
+      await AsyncStorage.setItem(USER_KEY, JSON.stringify(mappedUser));
       await loadAllData(result.token);
-      return result.user;
+      return mappedUser;
     },
     [loadAllData]
   );
 
   const logout = useCallback(async () => {
-    setUser(result.user);
-    setToken(result.token);
+    setUser(null);
+    setToken(null);
     setUsers([]);
     setRequisitions([]);
     setNotifications([]);

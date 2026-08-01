@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, StyleSheet, ScrollView } from "react-native";
+import { View, Text, Pressable, StyleSheet, ScrollView, useWindowDimensions } from "react-native";
 import {
   LayoutDashboard,
   ClipboardList,
@@ -20,9 +20,14 @@ import RequisicaoDetalheScreen from "./RequisicaoDetalheScreen";
 import NovaRequisicaoScreen from "./NovaRequisicaoScreen";
 import AdministracaoScreen from "./AdministracaoScreen";
 
+const COMPACT_BREAKPOINT = 700;
+
 // Barra lateral fixa, sempre visível (sem menu suspenso / gaveta que abre e fecha).
+// Em telas estreitas (celular) ela fica mais fina, só com os ícones.
 export default function AppShell() {
   const { user, logout, notifications, markAllNotificationsRead, toast } = useAppState();
+  const { width } = useWindowDimensions();
+  const compact = width < COMPACT_BREAKPOINT;
 
   const [view, setView] = useState("dashboard");
   const [selectedReqId, setSelectedReqId] = useState(null);
@@ -54,13 +59,16 @@ export default function AppShell() {
   return (
     <View style={styles.root}>
       <View style={styles.body}>
-        <View style={styles.sidebar}>
-          <View style={styles.sidebarHeader}>
-            <View>
-              <Text style={styles.sidebarEyebrow}>SIGRM</Text>
-              <Text style={styles.sidebarTitle}>Gestão de{"\n"}Requisições</Text>
-            </View>
-            {user.role === "logistica" && (
+        <View style={[styles.sidebar, { width: compact ? 68 : 220, padding: compact ? 10 : 16 }]}>
+          <View style={[styles.sidebarHeader, compact && { justifyContent: "center", marginBottom: 16 }]}>
+            {!compact && (
+              <View>
+                <Text style={styles.sidebarEyebrow}>SIGRM</Text>
+                <Text style={styles.sidebarTitle}>Gestão de{"\n"}Requisições</Text>
+              </View>
+            )}
+            {compact && <Text style={styles.sidebarEyebrowCompact}>SIGRM</Text>}
+            {!compact && user.role === "logistica" && (
               <View>
                 <Pressable
                   onPress={() => {
@@ -103,38 +111,57 @@ export default function AppShell() {
             )}
           </View>
 
+          {compact && user.role === "logistica" && (
+            <Pressable
+              onPress={() => {
+                setNotifOpen((o) => !o);
+                if (!notifOpen) markAllNotificationsRead();
+              }}
+              style={[styles.bellBtn, { alignSelf: "center", marginBottom: 14 }]}
+            >
+              <Bell size={15} color="#fff" />
+              {unread && <View style={styles.bellDot} />}
+            </Pressable>
+          )}
+
           <View style={{ gap: 3, marginBottom: 20 }}>
             {navItems.map((item) => {
               const Icon = item.icon;
               const active = view === item.key;
               return (
-                <Pressable key={item.key} onPress={() => goTo(item.key)} style={[styles.navItem, active && styles.navItemActive]}>
+                <Pressable
+                  key={item.key}
+                  onPress={() => goTo(item.key)}
+                  style={[styles.navItem, compact && styles.navItemCompact, active && styles.navItemActive]}
+                >
                   <Icon size={16} color={active ? "#fff" : "#C4CBC3"} />
-                  <Text style={[styles.navItemText, active && { color: "#fff" }]}>{item.label}</Text>
+                  {!compact && <Text style={[styles.navItemText, active && { color: "#fff" }]}>{item.label}</Text>}
                 </Pressable>
               );
             })}
           </View>
 
           <View style={styles.sidebarFooter}>
-            <View style={{ flexDirection: "row", alignItems: "center", gap: 9, marginBottom: 10 }}>
+            <View style={[{ flexDirection: "row", alignItems: "center", gap: 9, marginBottom: 10 }, compact && { justifyContent: "center" }]}>
               <View style={styles.avatar}>
                 <Text style={styles.avatarText}>{(user.name || "?").slice(0, 1).toUpperCase()}</Text>
               </View>
-              <View>
-                <Text style={styles.userName}>{user.name}</Text>
-                <Text style={styles.userRole}>{ROLES[user.role]?.label || "—"}</Text>
-              </View>
+              {!compact && (
+                <View>
+                  <Text style={styles.userName}>{user.name}</Text>
+                  <Text style={styles.userRole}>{ROLES[user.role]?.label || "—"}</Text>
+                </View>
+              )}
             </View>
-            <Pressable onPress={logout} style={styles.logoutBtn}>
+            <Pressable onPress={logout} style={[styles.logoutBtn, compact && { justifyContent: "center", paddingHorizontal: 0 }]}>
               <LogOut size={13} color="#C4CBC3" />
-              <Text style={styles.logoutText}>Sair</Text>
+              {!compact && <Text style={styles.logoutText}>Sair</Text>}
             </Pressable>
           </View>
         </View>
 
         <View style={styles.main}>
-          <View style={styles.mainInner}>{renderScreen()}</View>
+          <View style={[styles.mainInner, compact && { padding: 12 }]}>{renderScreen()}</View>
         </View>
       </View>
 
@@ -150,9 +177,10 @@ export default function AppShell() {
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: COLORS.paper },
   body: { flex: 1, flexDirection: "row" },
-  sidebar: { width: 220, backgroundColor: COLORS.ink, padding: 16 },
+  sidebar: { backgroundColor: COLORS.ink },
   sidebarHeader: { flexDirection: "row", alignItems: "flex-start", justifyContent: "space-between", marginBottom: 24 },
   sidebarEyebrow: { fontFamily: FONTS.mono, fontSize: 10.5, letterSpacing: 1.5, color: "#9FB0A6", textTransform: "uppercase" },
+  sidebarEyebrowCompact: { fontFamily: FONTS.mono, fontSize: 9.5, letterSpacing: 1, color: "#9FB0A6", textTransform: "uppercase" },
   sidebarTitle: { fontFamily: FONTS.displayBold, fontSize: 16, color: "#fff", lineHeight: 20 },
   bellBtn: { width: 30, height: 30, borderRadius: 7, backgroundColor: "rgba(255,255,255,0.08)", alignItems: "center", justifyContent: "center" },
   bellDot: { position: "absolute", top: -2, right: -2, width: 8, height: 8, borderRadius: 4, backgroundColor: COLORS.amber, borderWidth: 1.5, borderColor: COLORS.ink },
@@ -164,6 +192,7 @@ const styles = StyleSheet.create({
   notifItemMeta: { fontSize: 11.5, color: COLORS.muted, fontFamily: FONTS.mono },
   notifItemTime: { fontSize: 10.5, color: COLORS.muted },
   navItem: { flexDirection: "row", alignItems: "center", gap: 10, paddingVertical: 9, paddingHorizontal: 10, borderRadius: 7 },
+  navItemCompact: { justifyContent: "center", paddingHorizontal: 0 },
   navItemActive: { backgroundColor: "rgba(255,255,255,0.1)" },
   navItemText: { fontFamily: FONTS.bodyMedium, fontSize: 13, color: "#C4CBC3" },
   sidebarFooter: { marginTop: "auto", paddingTop: 14, borderTopWidth: 1, borderTopColor: "rgba(255,255,255,0.12)" },

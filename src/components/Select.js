@@ -1,10 +1,40 @@
 import React from "react";
-import { View, StyleSheet } from "react-native";
-import { Picker } from "@react-native-picker/picker";
+import { View, StyleSheet, Platform } from "react-native";
 import { COLORS } from "../theme/colors";
 
 // options: [{ value, label }]
 export default function Select({ value, onValueChange, options, style }) {
+  if (Platform.OS === "web") {
+    // No navegador usamos o <select> nativo do próprio HTML — mais simples
+    // e mais confiável do que traduzir o Picker nativo pra web.
+    return (
+      <View style={[styles.wrap, style]}>
+        {React.createElement(
+          "select",
+          {
+            value,
+            onChange: (e) => onValueChange(e.target.value),
+            style: {
+              width: "100%",
+              height: 40,
+              border: "none",
+              background: "transparent",
+              fontSize: 13,
+              color: COLORS.ink,
+              padding: "0 8px",
+              outline: "none",
+            },
+          },
+          options.map((opt) =>
+            React.createElement("option", { key: opt.value, value: opt.value }, opt.label)
+          )
+        )}
+      </View>
+    );
+  }
+
+  // Nas plataformas nativas (Android/iOS), usa o seletor nativo de verdade.
+  const { Picker } = require("@react-native-picker/picker");
   return (
     <View style={[styles.wrap, style]}>
       <Picker

@@ -123,8 +123,7 @@ export default function AppShell() {
               </View>
               <View>
                 <Text style={styles.userName}>{user.name}</Text>
-                <Text style={styles.userRole}>{ROLES[user.role].label}</Text>
-              </View>
+                <Text style={styles.userRole}>{ROLES[user.role]?.label || "—"}</Text>
             </View>
             <Pressable onPress={logout} style={styles.logoutBtn}>
               <LogOut size={13} color="#C4CBC3" />

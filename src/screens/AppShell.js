@@ -8,45 +8,46 @@ import {
   Bell,
   LogOut,
   XCircle,
+  RefreshCw,
 } from "lucide-react-native";
 import { COLORS } from "../theme/colors";
 import { FONTS } from "../theme/fonts";
 import { ROLES } from "../data/constants";
 import { useAppState } from "../state/AppState";
-
+ 
 import DashboardScreen from "./DashboardScreen";
 import RequisicoesListScreen from "./RequisicoesListScreen";
 import RequisicaoDetalheScreen from "./RequisicaoDetalheScreen";
 import NovaRequisicaoScreen from "./NovaRequisicaoScreen";
 import AdministracaoScreen from "./AdministracaoScreen";
-
+ 
 const COMPACT_BREAKPOINT = 700;
-
+ 
 // Barra lateral fixa, sempre visível (sem menu suspenso / gaveta que abre e fecha).
 // Em telas estreitas (celular) ela fica mais fina, só com os ícones.
 export default function AppShell() {
-  const { user, logout, notifications, markAllNotificationsRead, toast } = useAppState();
+  const { user, logout, notifications, markAllNotificationsRead, toast, refreshAll, refreshing } = useAppState();
   const { width } = useWindowDimensions();
   const compact = width < COMPACT_BREAKPOINT;
-
+ 
   const [view, setView] = useState("dashboard");
   const [selectedReqId, setSelectedReqId] = useState(null);
   const [notifOpen, setNotifOpen] = useState(false);
-
+ 
   function goTo(v, reqId) {
     setView(v);
     if (reqId) setSelectedReqId(reqId);
   }
-
+ 
   const navItems = [
     { key: "dashboard", label: "Painel", icon: LayoutDashboard },
     { key: "requisicoes", label: "Requisições", icon: ClipboardList },
     ...(user.role === "tecnico" ? [{ key: "nova", label: "Nova requisição", icon: Plus }] : []),
     ...(user.role === "administrador" ? [{ key: "administracao", label: "Administração", icon: Settings }] : []),
   ];
-
+ 
   const unread = notifications.some((n) => !n.read);
-
+ 
   function renderScreen() {
     if (view === "dashboard") return <DashboardScreen goTo={goTo} />;
     if (view === "requisicoes") return <RequisicoesListScreen goTo={goTo} />;
@@ -55,7 +56,7 @@ export default function AppShell() {
     if (view === "detalhe" && selectedReqId) return <RequisicaoDetalheScreen reqId={selectedReqId} onBack={() => goTo("requisicoes")} />;
     return <DashboardScreen goTo={goTo} />;
   }
-
+ 
   return (
     <View style={styles.root}>
       <View style={styles.body}>
@@ -68,7 +69,12 @@ export default function AppShell() {
               </View>
             )}
             {compact && <Text style={styles.sidebarEyebrowCompact}>SIGRM</Text>}
-            {!compact && user.role === "logistica" && (
+            {!compact && (
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                <Pressable onPress={refreshAll} disabled={refreshing} style={styles.bellBtn}>
+                  <RefreshCw size={14} color="#fff" />
+                </Pressable>
+                {user.role === "logistica" && (
               <View>
                 <Pressable
                   onPress={() => {
@@ -108,9 +114,17 @@ export default function AppShell() {
                   </View>
                 )}
               </View>
+                )}
+              </View>
             )}
           </View>
-
+ 
+          {compact && (
+            <Pressable onPress={refreshAll} disabled={refreshing} style={[styles.bellBtn, { alignSelf: "center", marginBottom: 8 }]}>
+              <RefreshCw size={14} color="#fff" />
+            </Pressable>
+          )}
+ 
           {compact && user.role === "logistica" && (
             <Pressable
               onPress={() => {
@@ -123,7 +137,7 @@ export default function AppShell() {
               {unread && <View style={styles.bellDot} />}
             </Pressable>
           )}
-
+ 
           <View style={{ gap: 3, marginBottom: 20 }}>
             {navItems.map((item) => {
               const Icon = item.icon;
@@ -140,7 +154,7 @@ export default function AppShell() {
               );
             })}
           </View>
-
+ 
           <View style={styles.sidebarFooter}>
             <View style={[{ flexDirection: "row", alignItems: "center", gap: 9, marginBottom: 10 }, compact && { justifyContent: "center" }]}>
               <View style={styles.avatar}>
@@ -159,12 +173,12 @@ export default function AppShell() {
             </Pressable>
           </View>
         </View>
-
+ 
         <View style={styles.main}>
           <View style={[styles.mainInner, compact && { padding: 12 }]}>{renderScreen()}</View>
         </View>
       </View>
-
+ 
       {toast && (
         <View style={styles.toast}>
           <Text style={styles.toastText}>{toast}</Text>
@@ -173,7 +187,7 @@ export default function AppShell() {
     </View>
   );
 }
-
+ 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: COLORS.paper },
   body: { flex: 1, flexDirection: "row" },
@@ -207,3 +221,4 @@ const styles = StyleSheet.create({
   toast: { position: "absolute", bottom: 24, left: "50%", transform: [{ translateX: -100 }], backgroundColor: COLORS.ink, paddingVertical: 11, paddingHorizontal: 20, borderRadius: 8, maxWidth: 320 },
   toastText: { color: "#fff", fontSize: 13.5, fontFamily: FONTS.bodyMedium },
 });
+ 

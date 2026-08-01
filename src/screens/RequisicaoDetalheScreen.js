@@ -278,11 +278,7 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
 
               <View style={{ marginTop: 10 }}>
                 <Text style={styles.itemFieldLabel}>Nº de NT</Text>
-                {canEditLogistica ? (
-                  <TextField value={it.obs} onChangeText={(v) => handleFieldChange(it._id, "obs", v)} placeholder="Nº de NT" />
-                ) : (
-                  <Text style={{ color: COLORS.muted, fontSize: 12.5 }}>{it.obs || "—"}</Text>
-                )}
+                <Text style={{ color: COLORS.muted, fontSize: 12.5 }}>{it.obs || "—"}</Text>
               </View>
             </Card>
           );

@@ -1,30 +1,30 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as api from "../api/endpoints";
-
+ 
 const AppStateContext = createContext(null);
 const TOKEN_KEY = "sigrm.token";
 const USER_KEY = "sigrm.user";
-
+ 
 export function AppStateProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(null);
   const [restoringSession, setRestoringSession] = useState(true);
-
+ 
   const [users, setUsers] = useState([]);
   const [requisitions, setRequisitions] = useState([]);
   const [notifications, setNotifications] = useState([]);
   const [loadingData, setLoadingData] = useState(false);
-
+ 
   const [toast, setToast] = useState(null);
   const toastTimer = useRef(null);
-
+ 
   const showToast = useCallback((msg) => {
     setToast(msg);
     if (toastTimer.current) clearTimeout(toastTimer.current);
     toastTimer.current = setTimeout(() => setToast(null), 2600);
   }, []);
-
+ 
   const loadAllData = useCallback(async (tk) => {
     setLoadingData(true);
     try {
@@ -42,7 +42,7 @@ export function AppStateProvider({ children }) {
       setLoadingData(false);
     }
   }, [showToast]);
-
+ 
   // Tenta restaurar a sessão salva ao abrir o app.
   useEffect(() => {
     (async () => {
@@ -70,7 +70,7 @@ export function AppStateProvider({ children }) {
     })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+ 
   const login = useCallback(
     async (loginValue, senha) => {
       const result = await api.login(loginValue, senha); // lança erro se falhar — a tela trata
@@ -84,7 +84,7 @@ export function AppStateProvider({ children }) {
     },
     [loadAllData]
   );
-
+ 
   const logout = useCallback(async () => {
     setUser(null);
     setToken(null);
@@ -93,13 +93,27 @@ export function AppStateProvider({ children }) {
     setNotifications([]);
     await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY]);
   }, []);
-
+ 
   const refreshRequisicoes = useCallback(async () => {
     if (!token) return;
     const reqs = await api.listRequisicoes(token);
     setRequisitions(reqs);
   }, [token]);
-
+ 
+  const [refreshing, setRefreshing] = useState(false);
+  const refreshAll = useCallback(async () => {
+    if (!token) return;
+    setRefreshing(true);
+    try {
+      await loadAllData(token);
+      showToast("Dados atualizados.");
+    } catch (err) {
+      showToast(err.message || "Não foi possível atualizar.");
+    } finally {
+      setRefreshing(false);
+    }
+  }, [token, loadAllData, showToast]);
+ 
   const updateRequisicao = useCallback(
     async (updated) => {
       try {
@@ -113,7 +127,7 @@ export function AppStateProvider({ children }) {
     },
     [token, showToast]
   );
-
+ 
   const createRequisicao = useCallback(
     async (data) => {
       const created = await api.createRequisicaoApi(token, data);
@@ -123,7 +137,7 @@ export function AppStateProvider({ children }) {
     },
     [token, showToast]
   );
-
+ 
   const markAllNotificationsRead = useCallback(async () => {
     try {
       const notifs = await api.markAllNotificationsReadApi(token);
@@ -132,7 +146,7 @@ export function AppStateProvider({ children }) {
       // falha silenciosa — não é crítico
     }
   }, [token]);
-
+ 
   const addUser = useCallback(
     async (u) => {
       const created = await api.createUser(token, u);
@@ -156,7 +170,7 @@ export function AppStateProvider({ children }) {
     },
     [token]
   );
-
+ 
   const value = {
     user,
     token,
@@ -171,16 +185,18 @@ export function AppStateProvider({ children }) {
     updateRequisicao,
     createRequisicao,
     refreshRequisicoes,
+    refreshAll,
+    refreshing,
     notifications,
     markAllNotificationsRead,
     loadingData,
     toast,
     showToast,
   };
-
+ 
   return <AppStateContext.Provider value={value}>{children}</AppStateContext.Provider>;
 }
-
+ 
 export function useAppState() {
   const ctx = useContext(AppStateContext);
   if (!ctx) throw new Error("useAppState deve ser usado dentro de AppStateProvider");

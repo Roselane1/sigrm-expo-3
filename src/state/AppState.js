@@ -51,11 +51,7 @@ export function AppStateProvider({ children }) {
           AsyncStorage.getItem(TOKEN_KEY),
           AsyncStorage.getItem(USER_KEY),
         ]);
-        if (savedToken && savedUser) {
-          setToken(savedToken);
-          setUser(JSON.parse(savedUser));
-          await loadAllData(savedToken);
-        }
+       if (savedToken && savedUser) { const parsedUser = JSON.parse(savedUser); if (parsedUser && parsedUser.name && parsedUser.role) { setToken(savedToken); setUser(parsedUser); await loadAllData(savedToken); } else { await AsyncStorage.multiRemove([TOKEN_KEY, USER_KEY]); } } 
       } catch {
         // sessão não pôde ser restaurada — segue para a tela de login
       } finally {

@@ -15,11 +15,13 @@ import { exportRequisicaoPdf } from "../utils/exportPdf";
 import { useAppState } from "../state/AppState";
  
 export default function RequisicaoDetalheScreen({ reqId, onBack }) {
-  const { user, requisitions, updateRequisicao } = useAppState();
+  const { user, requisitions, updateRequisicao, deleteRequisicao } = useAppState();
   const req = requisitions.find((r) => r.id === reqId);
  
   const [expandedIds, setExpandedIds] = useState(new Set());
   const [confirmCancelReq, setConfirmCancelReq] = useState(false);
+  const [confirmDeleteReq, setConfirmDeleteReq] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [retiradaOpenId, setRetiradaOpenId] = useState(null);
   const [retiradaQtd, setRetiradaQtd] = useState("");
   const [retiradaQuem, setRetiradaQuem] = useState("");
@@ -87,6 +89,17 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
     setConfirmCancelReq(false);
   }
  
+  async function handleDelete() {
+    setDeleting(true);
+    try {
+      await deleteRequisicao(req.id);
+      onBack();
+    } catch (e) {
+      setDeleting(false);
+      setConfirmDeleteReq(false);
+    }
+  }
+ 
   async function handleExport() {
     setExporting(true);
     try {
@@ -146,6 +159,16 @@ export default function RequisicaoDetalheScreen({ reqId, onBack }) {
             <Text style={{ fontSize: 12.5, color: COLORS.rust }}>Confirma o cancelamento?</Text>
             <Button variant="danger" onPress={cancelarRequisicao}>Sim, cancelar</Button>
             <Button variant="ghost" onPress={() => setConfirmCancelReq(false)}>Voltar</Button>
+          </View>
+        )}
+        {user.role === "administrador" && !confirmDeleteReq && (
+          <Button variant="danger" icon={Trash2} onPress={() => setConfirmDeleteReq(true)}>Excluir requisição</Button>
+        )}
+        {user.role === "administrador" && confirmDeleteReq && (
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <Text style={{ fontSize: 12.5, color: COLORS.rust }}>Excluir esta requisição para sempre? Não tem como desfazer.</Text>
+            <Button variant="danger" onPress={handleDelete} disabled={deleting}>{deleting ? "Excluindo..." : "Sim, excluir"}</Button>
+            <Button variant="ghost" onPress={() => setConfirmDeleteReq(false)} disabled={deleting}>Voltar</Button>
           </View>
         )}
       </View>
@@ -302,4 +325,4 @@ const styles = StyleSheet.create({
   itemFieldLabel: { fontSize: 10.5, textTransform: "uppercase", letterSpacing: 0.4, color: COLORS.muted, fontFamily: FONTS.mono, marginBottom: 3 },
   itemFieldValue: { fontSize: 13, color: COLORS.ink, fontFamily: FONTS.body },
 });
-
+ 

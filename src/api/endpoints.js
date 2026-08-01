@@ -1,9 +1,9 @@
 import { apiFetch } from "./client";
-
+ 
 export function login(loginValue, senha) {
   return apiFetch("/api/auth/login", { method: "POST", body: { login: loginValue, senha } });
 }
-
+ 
 export function listUsers(token) {
   return apiFetch("/api/users", { token });
 }
@@ -16,7 +16,7 @@ export function updateUser(token, id, patch) {
 export function deleteUser(token, id) {
   return apiFetch(`/api/users/${id}`, { method: "DELETE", token });
 }
-
+ 
 export function listRequisicoes(token) {
   return apiFetch("/api/requisicoes", { token });
 }
@@ -26,10 +26,14 @@ export function createRequisicaoApi(token, data) {
 export function updateRequisicaoApi(token, id, patch) {
   return apiFetch(`/api/requisicoes/${id}`, { method: "PATCH", body: patch, token });
 }
-
+export function deleteRequisicaoApi(token, id) {
+  return apiFetch(`/api/requisicoes/${id}`, { method: "DELETE", token });
+}
+ 
 export function listNotifications(token) {
   return apiFetch("/api/notifications", { token });
 }
 export function markAllNotificationsReadApi(token) {
   return apiFetch("/api/notifications/read-all", { method: "PATCH", token });
 }
+ 

@@ -2,6 +2,13 @@ import * as XLSX from "xlsx";
 import { HEADER_LABEL_MAP, PARSE_COLUMNS, HEADER_ROW_MIN_MATCHES } from "../data/constants";
 import { emptyHeader, normalize } from "./helpers";
  
+function formatDate(date) {
+  const dd = String(date.getDate()).padStart(2, "0");
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const yyyy = date.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+ 
 // Verifica se o texto de uma célula corresponde ao rótulo (ou a algum apelido/
 // variação conhecida) de uma coluna — ex: "Qtd" bate com a coluna "QDT".
 function cellMatchesColumn(cellText, col) {
@@ -57,7 +64,7 @@ export function parseWorkbook(workbook) {
         for (let k = ci + 1; k < Math.min(ci + 4, rows[r].length); k++) {
           const candidate = rows[r][k];
           if (candidate !== undefined && candidate !== null && String(candidate).trim() !== "") {
-            val = String(candidate).trim();
+            val = candidate instanceof Date ? formatDate(candidate) : String(candidate).trim();
             break;
           }
         }
@@ -85,3 +92,4 @@ export function parseWorkbook(workbook) {
  
   return { header, items, headerFound };
 }
+ 
